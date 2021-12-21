@@ -1,0 +1,47 @@
+@startuml
+
+package typedef {
+class ServantPrx
+note left
+    typedef T_AutoPtr<ServantProxy> ServantPrx
+end note
+class ServantProxy {
+    -Communicator * _communicator
+    -ObjectProxy ** _objectProxy
+
+}
+}
+
+class ServantProxyFactory {
+    -Communicator * _comm
+    -map<string, ServantPrx> _servantProxy
+}
+
+class Communicator {
+    -CommunicatorEpoll* _communicatorEpoll[]
+}
+
+class CommunicatorEpoll {
+    #ObjectProxyFactory* _objectProxyFactory
+    +virtural void run()
+}
+
+class ObjectProxyFactory {
+
+}
+
+note left of CommunicatorEpoll::run()
+    invoke by TC_Thread::start()
+end note
+
+ServantProxyFactory --> ServantPrx : generate >
+ServantProxyFactory -->  Communicator : 关联
+ServantPrx .. ServantProxy 
+
+ServantProxy  -->  Communicator : 关联
+ServantProxy  o-- ObjectProxy : 聚合
+
+TC_Thread <|-- CommunicatorEpoll : 继承
+Communicator o--  CommunicatorEpoll : 聚合
+CommunicatorEpoll --> ObjectProxyFactory : 关联
+@enduml

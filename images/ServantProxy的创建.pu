@@ -1,0 +1,39 @@
+@startuml Create ServantProxy
+
+(*) --> "new一个未经实例化的XXXServantProxy"
+--> "获取一个创建好的ServantProxy instance"
+note left
+    使用通讯器(communicator)的
+    stringToProxy(objectName)方法
+end note
+
+partition "Tars框架内部" #LightSkyBlue {
+--> "Communicator::getServantProxy(objectName)"
+--> "ServantProxyFactory::getServantProxy(name)"
+--> "查找同名的ServantProxy实例"
+note left
+    ServantProxyFactory维护了一个
+    name->ServantProxy示例的map
+end note
+
+if "找得到" then
+    -> [true] "返回已经创建过的示例"
+else
+    -> [false] "new一个新的ServantProxy"
+    --> "把新new出来的ServantProxy加入到name->ServantProxy示例的map中"
+endif
+
+-> "返回已经创建过的示例"
+}
+
+--> "通过ServantProxy调用某个具体的RPC函数"
+
+partition "Tars框架内部" {
+-> "ServantProxy::tars_invoke()"
+--> "ServantProxy::servant_invoke()"
+--> "ServantProxy::getServantPrx()"
+}
+
+"tars_invoke()" --> (*)
+
+@enduml
